@@ -1,0 +1,4 @@
+# Google AdSense ads.txt template.
+# Before publishing with AdSense, replace the publisher ID below with your real pub- ID
+# from Google AdSense, then remove the leading # on the line.
+# google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0

@@ -1,0 +1,199 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Image Editor | Social Presets & Enhance</title>
+    <meta name="description" content="Resize, crop, and enhance images in your browser with social media presets and simple export controls.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <style>
+        :root { --primary: #f59e0b; --bg: #f1f5f9; --dark: #0f172a; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--dark); }
+        .nav { background: white; padding: 1rem; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .nav .title { font-size: 1.5rem; font-weight: 800; color: var(--primary); text-decoration: none; display: block; margin-bottom: 0.55rem; }
+        .nav-links { list-style: none; padding: 0; margin: 0; display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap; }
+        .nav-links a { color: #334155; text-decoration: none; font-weight: 700; font-size: 0.92rem; }
+        .nav-links a:hover { color: var(--primary); }
+        .hamburger { display: none; width: 42px; height: 42px; align-items: center; justify-content: center; flex-direction: column; gap: 5px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; cursor: pointer; margin: 0 auto; }
+        .hamburger span { width: 20px; height: 2px; background: #0f172a; border-radius: 999px; transition: transform 0.22s ease, opacity 0.18s ease; }
+        .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; display: grid; grid-template-columns: 1fr 350px; gap: 20px; }
+        
+        .editor-window { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); min-height: 600px; display: flex; align-items: center; justify-content: center; }
+        .sidebar { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: 85vh; overflow-y: auto; }
+
+        .img-container { max-width: 100%; max-height: 75vh; }
+        img { max-width: 100%; display: block; transition: filter 0.3s ease; }
+
+        .btn-upload { background: var(--primary); color: white; padding: 12px 24px; border-radius: 8px; cursor: pointer; display: inline-block; font-weight: 600; }
+        h4 { margin: 15px 0 10px; font-size: 13px; text-transform: uppercase; color: #64748b; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px; }
+
+        .tool-button { width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; background: white; cursor: pointer; margin-bottom: 5px; font-size: 12px; font-weight: 600; text-align: left; }
+        .tool-button:hover { background: #fff7ed; border-color: var(--primary); }
+
+        .enhance-group { margin-bottom: 15px; }
+        .enhance-group label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; font-weight: bold; }
+        input[type="range"] { width: 100%; cursor: pointer; }
+
+        .btn-download { background: #10b981; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 16px; }
+        .footer { text-align: center; padding: 2rem; color: #64748b; font-size: 0.9rem; }
+        
+        #fileInput { display: none; }
+        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } .sidebar { height: auto; } }
+        @media (max-width: 600px) {
+            .hamburger { display: inline-flex; }
+            .nav-links { position: fixed; top: 104px; left: 14px; right: 14px; display: grid; gap: 8px; padding: 14px; background: rgba(255,255,255,0.98); border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 24px 60px rgba(15,23,42,0.2); opacity: 0; transform: translateY(-10px); pointer-events: none; transition: opacity 0.18s ease, transform 0.22s ease; z-index: 20; }
+            .nav-links.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
+            .nav-links a { display: block; padding: 12px 14px; background: #f8fafc; border-radius: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Main navigation">
+    <span class="title">Pro Image Resize</span>
+    <button class="hamburger" type="button" aria-label="Open navigation" aria-expanded="false"><span></span><span></span><span></span></button>
+    <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="tools.html">Tools</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+    </ul>
+</nav>
+
+<div class="container">
+    <div class="editor-window">
+        <div id="placeholder" style="text-align: center;">
+            <div style="font-size: 32px; font-weight: 800; color: var(--primary);">IMG</div>
+            <h3>Ultimate Editor</h3>
+            <p style="color: #64748b;">Presets for Instagram, YouTube, and Enhancement Tools.</p>
+            <label for="fileInput" class="btn-upload">Select Image</label>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+        <div class="img-container">
+            <img id="image" src="">
+        </div>
+    </div>
+
+    <div class="sidebar" id="sidebar" style="display: none;">
+        <h3 style="margin-top: 0;">Settings</h3>
+        
+        <h4>1. Social Media Presets</h4>
+        <button class="tool-button" onclick="cropper.setAspectRatio(1)">Instagram Post (1:1)</button>
+        <button class="tool-button" onclick="cropper.setAspectRatio(9/16)">Story / TikTok (9:16)</button>
+        <button class="tool-button" onclick="cropper.setAspectRatio(16/9)">YouTube / Facebook (16:9)</button>
+        <button class="tool-button" onclick="cropper.setAspectRatio(4/5)">Portrait (4:5)</button>
+
+        <h4>2. Image Enhancement</h4>
+        <div class="enhance-group">
+            <label>Brightness <span id="bVal">100</span>%</label>
+            <input type="range" id="brightness" min="0" max="200" value="100" oninput="updateFilters()">
+        </div>
+        <div class="enhance-group">
+            <label>Contrast <span id="cVal">100</span>%</label>
+            <input type="range" id="contrast" min="0" max="200" value="100" oninput="updateFilters()">
+        </div>
+        <div class="enhance-group">
+            <label>Saturation <span id="sVal">100</span>%</label>
+            <input type="range" id="saturation" min="0" max="200" value="100" oninput="updateFilters()">
+        </div>
+
+        <h4>3. Resize (Pixels)</h4>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+            <input type="number" id="reWidth" placeholder="Width">
+            <input type="number" id="reHeight" placeholder="Height">
+        </div>
+
+        <button class="btn-download" onclick="exportImage()">Apply & Download</button>
+        <p style="text-align:center; font-size: 11px; color: #94a3b8; margin-top: 15px;">Fast & Local Processing</p>
+    </div>
+</div>
+
+<footer class="footer">
+    &copy; 2026 Pixel Tools - Image resize and editing tools.
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script>
+    let cropper;
+    const fileInput = document.getElementById('fileInput');
+    const image = document.getElementById('image');
+    const sidebar = document.getElementById('sidebar');
+    const placeholder = document.getElementById('placeholder');
+
+    fileInput.addEventListener('change', function(e) {
+        if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                if (cropper) cropper.destroy();
+                image.src = event.target.result;
+                placeholder.style.display = 'none';
+                sidebar.style.display = 'block';
+                initCropper();
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
+    function initCropper() {
+        cropper = new Cropper(image, {
+            viewMode: 1,
+            autoCropArea: 1,
+            ready() {
+                const data = cropper.getImageData();
+                document.getElementById('reWidth').value = Math.round(data.naturalWidth);
+                document.getElementById('reHeight').value = Math.round(data.naturalHeight);
+            }
+        });
+    }
+
+    function updateFilters() {
+        const b = document.getElementById('brightness').value;
+        const c = document.getElementById('contrast').value;
+        const s = document.getElementById('saturation').value;
+        
+        document.getElementById('bVal').innerText = b;
+        document.getElementById('cVal').innerText = c;
+        document.getElementById('sVal').innerText = s;
+
+        // Apply visual preview to the cropper
+        const container = document.querySelector('.cropper-container img');
+        if(container) {
+            container.style.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%)`;
+        }
+    }
+
+    function exportImage() {
+        const width = parseInt(document.getElementById('reWidth').value);
+        const height = parseInt(document.getElementById('reHeight').value);
+        
+        const b = document.getElementById('brightness').value;
+        const c = document.getElementById('contrast').value;
+        const s = document.getElementById('saturation').value;
+
+        const canvas = cropper.getCroppedCanvas({ width, height });
+        const ctx = canvas.getContext('2d');
+
+        // Create temporary canvas to apply filters to the final export
+        const finalCanvas = document.createElement('canvas');
+        finalCanvas.width = width;
+        finalCanvas.height = height;
+        const finalCtx = finalCanvas.getContext('2d');
+        
+        finalCtx.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%)`;
+        finalCtx.drawImage(canvas, 0, 0);
+
+        const dataUrl = finalCanvas.toDataURL('image/jpeg', 0.9);
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = 'Pro_Enhanced_Image.jpg';
+        a.click();
+    }
+</script>
+<script src="script.js"></script>
+</body>
+</html>
+
