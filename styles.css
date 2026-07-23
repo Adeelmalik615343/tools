@@ -733,7 +733,7 @@ footer a:hover {
         z-index: 1201;
     }
 
-    nav ul {
+    header nav ul {
         position: fixed;
         top: 68px;
         left: 14px;
@@ -757,17 +757,17 @@ footer a:hover {
         z-index: 1200;
     }
 
-    nav ul.active {
+    header nav ul.active {
         opacity: 1;
         transform: translateY(0) scale(1);
         pointer-events: auto;
     }
 
-    nav li {
+    header nav li {
         width: 100%;
     }
 
-    nav a {
+    header nav a {
         display: block;
         width: 100%;
         padding: 13px 14px;
